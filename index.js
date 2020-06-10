@@ -43,6 +43,11 @@ app.get('/login', (req, res) => {
 
 app.post('/login', async (req, res) => {
 	let { userName, password } = req.body;
+	if (!userName || !password) {
+		res.render('login', { err: 'Please fill out all fields' });
+		return;
+	}
+
 	let user = await User.findOne({ userName: userName });
 	if (user && password == user.password) {
 		req.session.user = user.id;
