@@ -7,12 +7,20 @@ const mongoose = require('mongoose');
 const app = express();
 mongoose.connect(`mongodb+srv://kaela:${process.env.MONGOPASS}@cluster0-lbqlb.azure.mongodb.net/users?retryWrites=true&w=majority`, { useCreateIndex: true, useNewUrlParser: true, useUnifiedTopology: true });
 const port = process.env.PORT || 3000;
+const session = require('express-session');
+const MongoStore = require('connect-mongo')(session);
 
 const User = require('./models/userModel');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(session({
+	secret: 'supersecuresecret',
+	store: new MongoStore({ mongooseConnection: mongoose.connection }),
+	resave: false,
+	saveUninitialized: false
+}));
 
 app.engine('.hbs', hbs({
 	defaultLayout: 'layout',
@@ -31,6 +39,19 @@ app.get('/signup', (req, res) => {
 
 app.get('/login', (req, res) => {
 	res.render('login');
+});
+
+app.post('/login', async (req, res) => {
+	let { userName, password } = req.body;
+	let user = await User.findOne({ userName: userName });
+	if (user && password == user.password) {
+		req.session.user = user.id;
+		res.redirect(`/profile/${userName}`);
+	} else if (user) {
+		res.render('login', { err: 'Incorrect password' });
+	} else {
+		res.render('login', { err: 'User not found' });
+	}
 });
 
 app.get('/profile/:username', async (req, res) => {
@@ -56,8 +77,9 @@ app.post('/signup', async (req, res) => {
 		password: password
 	});
 
-	await user.save()
-		.then(success => res.redirect(`/profile/${req.body.userName}`))
+	// await user.save()
+	user.save()
+		.then(success => res.redirect(`/profile/${userName}`))
 		.catch(error => {
 			res.render('signup', { err: 'A user with that username or email already exists' });
 		});

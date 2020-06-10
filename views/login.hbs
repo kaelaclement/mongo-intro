@@ -1,8 +1,13 @@
 <h1>Log In</h1>
 
+{{#if err}}
+{{err}}
+<br><br>
+{{/if}}
+
 <form action="/login" method="post">
-	<label for="email">Email: </label>
-	<input type="text" name="email" id="email">
+	<label for="userName">Username: </label>
+	<input type="text" name="userName" id="userName">
 	<br>
 	<label for="password">Password: </label>
 	<input type="password" name="password" id="password">
