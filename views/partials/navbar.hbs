@@ -1,4 +1,7 @@
 <a href="/">Home</a>
 <a href="/signup">Sign Up</a>
+{{#if loggedIn}}
+<a href="/{{userName}}">Profile</a>
+{{else}}
 <a href="/login">Log In</a>
-<a href="/profile">Profile</a>
+{{/if}}

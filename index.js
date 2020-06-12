@@ -5,12 +5,13 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const app = express();
-mongoose.connect(`mongodb+srv://kaela:${process.env.MONGOPASS}@cluster0-lbqlb.azure.mongodb.net/users?retryWrites=true&w=majority`, { useCreateIndex: true, useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(process.env.DATABASE_URL, { useCreateIndex: true, useNewUrlParser: true, useUnifiedTopology: true });
 const port = process.env.PORT || 3000;
 const session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
 
 const userRouter = require('./routes/user');
+// const User = require('./models/userModel');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -21,6 +22,17 @@ app.use(session({
 	resave: false,
 	saveUninitialized: false
 }));
+
+// app.use(async (req, res) => {
+// 	let loggedIn = req.session.user;
+
+// 	if (loggedIn) {
+// 		res.locals.loggedIn = true;
+// 		res.locals.userName = req.session.user;
+// 	} else {
+// 		res.locals.loggedIn = false;
+// 	}
+// })
 
 app.engine('.hbs', hbs({
 	defaultLayout: 'layout',

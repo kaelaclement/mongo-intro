@@ -37,14 +37,25 @@ exports.login = async (req, res) => {
 		return;
 	}
 
-	let user = await User.findOne({ userName: userName });
-	if (user && password == user.password) {
-		req.session.user = user.id;
-		res.redirect(`/profile/${userName}`);
-	} else if (user) {
-		res.render('login', { err: 'Incorrect password' });
+	// let user = await User.findOne({ userName: userName });
+	// if (user && password == user.password) {
+	// 	req.session.user = user.userName;
+	// 	res.redirect(`/${userName}`);
+	// } else if (user) {
+	// 	res.render('login', { err: 'Incorrect password' });
+	// } else {
+	// 	res.render('login', { err: 'User not found' });
+	// }
+
+	let found = await User.findUser(req.body);
+
+	if (found.success) {
+		req.session.user = found.user.userName;
+		res.redirect(`/${userName}`);
 	} else {
-		res.render('login', { err: 'User not found' });
+		let err = found.err
+		console.log(err);
+		res.render('login', { err })
 	}
 }
 

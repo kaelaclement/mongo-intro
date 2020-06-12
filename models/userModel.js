@@ -10,6 +10,17 @@ let user = new Schema({
 		toObject: {
 			virtuals: true
 		}
-	})
+	}
+);
+
+user.statics.findUser = async function (body) {
+	let user = await this.findOne({ userName: body.userName });
+	if (!user) {
+		return { success: false, err: "User not found" }
+	} else if (user.password != body.password) {
+		return { success: false, err: "Password is incorrect" };
+	}
+	return { success: true, user: user.toObject() };
+}
 
 module.exports = model('users', user);
